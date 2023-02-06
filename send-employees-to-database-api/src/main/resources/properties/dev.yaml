@@ -1,0 +1,20 @@
+http:
+  port: "8081"
+  
+db: 
+  url: "jdbc:postgresql://ec2-35-173-91-114.compute-1.amazonaws.com:5432/d475b014o29oju"
+  driver: "org.postgresql.Driver"
+  user: "bzuwboklheuqej"
+  password: "1c8a14e043eac1d28b73b04e1500efe9c7b943cd13b543842dc2d61ba8a68661"
+  table: 'public."cadastro-dev"'
+
+batch:  
+  size: "100"
+
+file:  
+  directory: "C:/employees/dev/input"
+  source_path: "C:/employees/dev/input/bradesco-base-funcionarios.xlsx"
+  target_path: "C:/employees/dev/output"
+  
+responsavel_tecnico:  
+  id: "3"

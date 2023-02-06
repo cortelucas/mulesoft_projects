@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="info_flow" doc:id="69aaebf2-7219-452b-9de2-cc383619e800" >
+		<logger level="INFO" doc:name="enter_endpoint_info" doc:id="d1c6e880-59fc-483c-a13e-9fd2057c885c" message='#["Entrou no endpoint de informacoes da API " ++ app.name]'/>
+		<ee:transform doc:name="returns_app_info" doc:id="478fbf55-4e98-497e-8379-c55843178fb0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	app: {
+		name: app.name,
+		description: "API ETL para leitura de arquivo em pasta, limpar os dados e salvar no banco de dados.",
+		version: "1.0.0"	
+	}
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

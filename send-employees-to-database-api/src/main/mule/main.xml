@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd">
+	<flow name="main" doc:id="9576c590-db15-4291-abb6-e51d35a8975c" >
+		<file:listener doc:name="listen_folder" doc:id="7bfc742c-4889-402c-995a-5ac65540e04d" config-ref="File_Config" directory="${file.directory}" moveToDirectory="${file.target_path}" renameTo="#[&quot;employees-&quot; ++ (now() &gt;&gt; &quot;America/Sao_Paulo&quot;) as String { format:'dd-MM-hhmmss' } ++ &quot;.xlsx&quot;]" outputMimeType="application/xlsx; ignoreemptyline=true">
+			<scheduling-strategy >
+				<fixed-frequency />
+			</scheduling-strategy>
+		</file:listener>
+		<logger level="INFO" doc:name="init_integration" doc:id="8c65d0e1-3c7e-4e2a-9b1f-cedceab44ed0" message='#["Inicio da integracao -&gt; " ++ app.name]'/>
+		<ee:transform doc:name="xlsx_to_json" doc:id="5e9e76e9-581a-4681-b576-0e68f6b69308" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var reponsavel_tecnico = p("responsavel_tecnico.id")
+var employees = payload.Sheet1 filter ((employee) -> employee."Responsável Técnico " == reponsavel_tecnico as Number)
+var calculatesAge = (birthday) ->
+    (((now() >> "America/Sao_Paulo") as Date).year - birthday.year)
+var selectsTechnicalOfficer = (technicalOfficer) ->
+    [   "Juliana", "Clezio", "Lucas", "Helbert", "Jessica", "Não foi possível indentificar o responsável técnico"]
+    [[1, 2, 3, 4, 5] indexOf technicalOfficer]
+---
+employees map ((employee, index) -> {
+        id: index,
+        nome: (employee.Nome splitBy  " ")[0],
+        sobrenome: ((employee.Nome splitBy  " ")[1]),
+        idade: calculatesAge(employee."Data nascimento"),
+        nome_responsavel: selectsTechnicalOfficer(employee."Responsável Técnico " as String as Number),
+        responsavel_tecnico: employee."Responsável Técnico " as String as Number,
+        salario: employee."Salário",
+        piso: if(employee."Salário" > 1000) true as Boolean else false as Boolean
+    }
+)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<choice doc:name="Choice" doc:id="06406fa1-1d26-48fb-873d-41850ed04485" >
+			<when expression="#[not isEmpty(payload)]">
+				<foreach doc:name="for_each_page" doc:id="8e4c0592-4aaa-4954-bb1d-bb8219a24466" batchSize="${batch.size}" collection="#[payload]">
+					<db:bulk-insert doc:name="bulk_insert_employees" doc:id="656aaa32-59c2-493f-809b-a199891894b2" config-ref="Database_Config">
+						<db:sql ><![CDATA[INSERT INTO ${db.table} (
+	nome,
+    sobrenome,
+    idade,
+    nome_responsavel,
+    piso,
+    responsavel_tecnico,
+    salario
+)
+VALUES(
+	:nome,
+    :sobrenome,
+    :idade,
+    :nome_responsavel,
+    :piso,
+    :responsavel_tecnico,
+    :salario
+);]]></db:sql>
+					</db:bulk-insert>
+					<logger level="INFO" doc:name="log_informs_insertion" doc:id="e7638799-64fc-4fea-b3d7-a3ab21eb7ab8" message='#["Pagina " ++ vars.counter ++ ": " ++ sum(payload) ++ " de " ++ sizeOf(payload) ++ " registros incluidos."]'/>
+				</foreach>
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="log_no_registers" doc:id="ce077ff4-5db1-4718-ba21-31875b652844" message="Sem registros a serem lidos"/>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="end_integration" doc:id="08929cbe-4673-4035-b451-0d71c688f169" message='#["Fim da integracao -&gt; " ++ app.name]'/>
+	</flow>
+	<flow name="router" doc:id="fa13e119-ef9d-49b8-a555-d0dc144a34d9" >
+		<http:listener doc:name="Listener" doc:id="f517df4d-3fd7-460f-b632-fa7a5cef17a1" config-ref="HTTP_Listener_config" path="/api/*"/>
+		<apikit:router doc:id="7ca3c1d8-140b-4587-8014-bca3c0b4a88a" config-ref="Router"/>
+	</flow>
+	<flow name="info_main" doc:id="320cd34c-4786-4c99-8a63-41cc84e627e6" >
+		<flow-ref doc:name="info_flow" doc:id="e654706d-1013-49d9-953a-a9071e9ac117" name="info_flow"/>
+	</flow>
+	<flow name="health_check_db" doc:id="564bd6c9-0b49-414a-991e-98fffe773bc9" >
+		<flow-ref doc:name="health_check_db" doc:id="470e9dd7-7052-4372-b983-9032ddc24dca" name="db_health_check"/>
+	</flow>
+	<flow name="health_check_api" doc:id="6cfcedb4-5d4f-4681-a671-c61ea440d0ec" >
+		<flow-ref doc:name="health_check_main" doc:id="02615ff4-c11c-468f-82b5-c9e446d12cff" name="health_check_main"/>
+	</flow>
+</mule>

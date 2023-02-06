@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="test-suite.xml" />
+	<munit:test name="main-insert_db-test" doc:id="e50fdd74-87f9-4a89-bf7c-6d1740be5665" >
+		<munit:behavior >
+			<munit:set-event doc:name="set_input" doc:id="70486291-c5a8-4e8a-b6cc-7323401c7775" />
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="main" doc:id="3f800d94-84c6-4a6c-8069-3f57155056a1" name="main"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="assert_payload" doc:id="6d324397-65b7-405e-9abd-b2ef7ce98250" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+			<munit-tools:verify-call doc:name="verify_not_error" doc:id="537acf6b-27fb-4604-9f64-4e27870a1981" processor="logger" times="0">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="08929cbe-4673-4035-b451-0d71c688f169" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="test-suiteTest" doc:id="0dfe4176-4ddc-4ea2-9e5f-1d41d5015601" >
+		<munit:behavior >
+			<munit:set-event doc:name="set_empty_file" doc:id="cea2c112-b919-46ac-bff7-a49f6a0c332c" />
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="0fb552ce-3c5d-422c-9159-e6618f9d557c" name="main"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="5eaeb755-12fa-4a93-a9a9-e9cf6fc6070a" is="#[MunitTools::notNullValue()]"/>
+			<munit-tools:verify-call doc:name="verify_not_insert" doc:id="9cc94de3-9f7a-4b69-90f8-876af4ec5c51" processor="db:bulk-insert" times="0">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="656aaa32-59c2-493f-809b-a199891894b2" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="main-error_app-test" doc:id="c50e4b95-1eeb-4e1a-aedb-bd6b30142ec6" >
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="3ef23b34-4a44-4240-8531-65f3f926c01a" name="main"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="verify_error_app" doc:id="fdb8f79b-bb3f-40f6-b102-45414f6b8522" processor="logger" times="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="4bb8e437-14ab-4ed8-9231-5216da24b3c9" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:verify-call doc:name="verify_not_end_integration" doc:id="37103442-1cf9-4c8a-9de4-6a5ffabdb8d0" processor="logger" times="0">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="08929cbe-4673-4035-b451-0d71c688f169" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

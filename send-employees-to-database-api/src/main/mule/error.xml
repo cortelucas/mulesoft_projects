@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	<error-handler name="global_error_handler" doc:id="2cd130da-a44a-48a5-9edf-a47e61dfbcc3" >
+		<on-error-continue enableNotifications="true" logException="true" doc:name="error_illegal_path" doc:id="490ee696-10a0-4f3e-b028-21c3f9392162" type="FILE:ILLEGAL_PATH">
+			<logger level="ERROR" doc:name="log_error_illegal_path" doc:id="02f3b212-cd10-4ae9-bdb9-fafcd43f6035" message='#["Error: " ++ error.description]'/>
+		</on-error-continue>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="error_app" doc:id="6d1f99f0-5cee-436d-ac8a-fcd11eecbd99" type="ANY">
+			<logger level="INFO" doc:name="log_error_app" doc:id="4bb8e437-14ab-4ed8-9231-5216da24b3c9" message='#["Erro na integracao -&gt; " ++ app.name ++ "\nError -&gt; " ++ error.description]'/>
+		</on-error-propagate>
+	</error-handler>
+</mule>

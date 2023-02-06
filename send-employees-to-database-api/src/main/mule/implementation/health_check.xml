@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+	<flow name="health_check_main" doc:id="d40cba00-d804-4ffe-98cd-f2a0ab2eb1ab" >
+		<ee:transform doc:name="Transform Message" doc:id="53d66b91-8cb4-4e73-90c1-c1d12fbefae7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	status: 
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="db_health_check" doc:id="a6b253ce-b65e-46cf-95bf-7dc1993a567a" >
+		<try doc:name="Try" doc:id="e2ca66c8-d5d4-4fa5-983f-3dc3ae42220c" >
+			<db:select doc:name="Select" doc:id="db18d3c4-60be-444b-88a9-ed701a4d05a7" config-ref="Database_Config">
+				<db:sql ><![CDATA[SELECT * FROM ${db.table}]]></db:sql>
+			</db:select>
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="error_health_check_db" doc:id="ed744d18-2b82-4e78-9470-bf685e33ef91" >
+					<set-variable value="#[error.errorType.identifier]" doc:name="db_error" doc:id="e263ec46-c9d2-4197-a0ab-012f43a7b791" variableName="db_error"/>
+				</on-error-continue>
+			</error-handler>
+		</try>
+		<ee:transform doc:name="health_check_db_status" doc:id="c98de10b-32dd-426e-92f2-06221815f9e1" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json 
+---
+{
+	serviceHealth: {
+		serviceType: "db",
+		(using (status = if (vars.db_error == null) "UP" else "DOWN") {
+			status: status,
+			(status match {
+				case "DOWN" -> {
+					errorCode: vars.db_error,
+					statusCode: vars.service.statusCode
+				}
+				else -> {}
+			})			
+		})
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
