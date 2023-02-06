@@ -1,0 +1,15 @@
+scheduler:  
+    expression: "0 0 0 ? * SUN *"
+    time_zone: "America/Sao_Paulo"
+  
+request:  
+    host: "jsonplaceholder.typicode.com"
+    endpoint: "/photos"
+    
+db:  
+    url: "jdbc:sqlite:C:/Users/lcorte/AnypointStudio/projects/send-photos-to-database/src/main/resources/database/albums.db"
+    driver: "org.sqlite.JDBC"
+  
+batch: 
+    size: "25"
+    

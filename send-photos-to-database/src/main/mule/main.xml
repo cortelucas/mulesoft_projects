@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<flow name="main" doc:id="f73b4252-ad38-48ea-86ed-aa780d71e89e" >
+		<scheduler doc:name="Scheduler" doc:id="53ef4681-fb69-4d5b-a222-16e8aa44cbe0" >
+			<scheduling-strategy >
+				<cron expression="${scheduler.expression}" timeZone="${scheduler.time_zone}" />
+			</scheduling-strategy>
+		</scheduler>
+		<logger level="INFO" doc:name="init_integration" doc:id="08ce2e6a-3fb0-4d75-b751-5384517b4c5c" message='#["init integration -&gt; " ++ app.name]'/>
+		<flow-ref doc:name="request_photos" doc:id="84a4a37b-3f11-4add-9462-e5d6884bffc1" name="request_photos" />
+		<ee:transform doc:name="photos_group_by_albumId" doc:id="41b9eb6f-c668-4738-a659-e2e9371c1112" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="photos_group_by_albumId" ><![CDATA[%dw 2.0
+output application/json
+---
+payload groupBy $.albumId]]></ee:set-variable>
+				<ee:set-variable variableName="accumulator" ><![CDATA[0 as Number]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="insert_into_paged_database" doc:id="f7f1070b-ad4f-4c24-96da-f39678879701" name="insert_into_paged_database" />
+		<logger level="INFO" doc:name="end_integration" doc:id="8919e641-cc48-4def-bfb1-b3348a509992" message='#["end integration -&gt; " ++ app.name]'/>
+	</flow>
+</mule>

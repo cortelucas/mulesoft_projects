@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<flow name="request_photos" doc:id="f6f85ff5-4701-461d-ae3f-e286eb297990" >
+		<logger level="INFO" doc:name="init_flow" doc:id="4b39db3c-8a61-4b32-b4c7-2394f7aaad2e" message='#["init flow -&gt; " ++ flow.name]'/>
+		<http:request method="GET" doc:name="Request" doc:id="8843f339-5293-4cf8-b2f5-98b52895a969" config-ref="HTTP_Request_configuration" path="${request.endpoint}" outputMimeType="application/json" />
+		<logger level="INFO" doc:name="end_flow" doc:id="bc85f863-cbae-46bf-a038-427a3fac076d" message='#["end flow -&gt; " ++ flow.name]'/>
+	</flow>
+</mule>

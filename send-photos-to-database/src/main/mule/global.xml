@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<global-property doc:name="Global Property" doc:id="28ba0699-eb36-432b-8cd1-068f0f567ca0" name="mule.env" value="dev" />
+	<configuration-properties doc:name="Configuration properties" doc:id="97910362-4363-4a97-8cc9-0e77c94459ec" file="properties/${mule.env}.yaml" />
+	<configuration doc:name="Configuration" doc:id="592f43e0-3f1c-405a-a042-dc3f81089194" defaultErrorHandler-ref="Global_Error_Handler" />
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="4a0a0e0a-c4a6-4e44-a740-2d4c0959b607" >
+		<http:request-connection protocol="HTTPS" host="${request.host}" />
+	</http:request-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="c2c39edd-6e8a-4b3a-a4d0-05f700e8d97f" >
+		<db:generic-connection url="${db.url}" driverClassName="${db.driver}" />
+	</db:config>
+</mule>

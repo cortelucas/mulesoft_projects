@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+	<flow name="insert_into_paged_database" doc:id="53aed60b-ad28-4dc1-95fb-ab7ee3359858" >
+		<foreach doc:name="For Each" doc:id="a04ccc1d-93d5-474e-a99b-a8897ac68506" collection="#[vars.photos_group_by_albumId]">
+			<flow-ref doc:name="insert_into_db" doc:id="7933cb58-839e-45ec-89d8-380ebb4d0382" name="insert_into_db" />
+		</foreach>
+	</flow>
+	<flow name="insert_into_db" doc:id="5b1fc4b7-8a41-4231-9134-32f1835563cc" >
+		<ee:transform doc:name="accumulator" doc:id="02a881cb-073b-4b17-bac2-38ce4490d513">
+					<ee:message>
+					</ee:message>
+					<ee:variables>
+						<ee:set-variable variableName="accumulator"><![CDATA[((vars.accumulator as Number) + 1)]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+		<choice doc:name="Choice" doc:id="cebc57c2-aea4-4b75-a1a9-969a27558e07">
+					<when expression="#[not isEmpty(payload)]">
+						<foreach doc:name="For Each" doc:id="4642ac80-69a2-45cb-b864-9d99d99fc4eb" collection="#[payload[0]]" batchSize="${batch.size}">
+							<db:bulk-insert doc:name="Bulk insert" doc:id="4be7cebb-d8c9-4bf7-aad1-e6502944d083" config-ref="Database_Config">
+							<db:sql><![CDATA[#["
+	INSERT INTO album_" ++ vars.accumulator ++ "
+		(id, title, url, thumbnailUrl)
+	VALUES
+		(:id, :title, :url, :thumbnailUrl);
+"]]]></db:sql>
+						</db:bulk-insert>
+					<logger level="INFO" doc:name="status" doc:id="c3640bbc-1a61-4d66-a148-b214ef57a90d" message='#["Pagina " ++ vars.accumulator ++ ": " ++ sum(payload) ++ " de " ++ sizeOf(payload) ++ " registros incluidos."]'/>
+						</foreach>
+					</when>
+					<otherwise>
+						<logger level="INFO" doc:name="Logger" doc:id="a0a92dea-f349-4ce7-a706-60a9b82a95f6" message='#["Não há registros a serem inseridos"]' />
+					</otherwise>
+				</choice>
+	</flow>
+</mule>
