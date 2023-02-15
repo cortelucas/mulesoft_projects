@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
 	<global-property doc:name="Global Property" doc:id="00e36f8f-b0ac-4f20-aff1-7c03045685d3" name="ENV" value="dev" />
 	<configuration-properties doc:name="Configuration properties" doc:id="b87f9bde-54d0-4242-9f75-330caa3d7615" file="properties/${ENV}.yaml" />
 	<configuration doc:name="Configuration" doc:id="ca0287ba-b095-4e68-b84a-d8497d02021e" defaultErrorHandler-ref="Global_Error_Handler" />
+	<db:config name="Origem_Database_Config" doc:name="Database Config" doc:id="1acb9f17-66e9-4b6f-ad74-8b8e8a90d62b" >
+		<db:generic-connection url="${db_origem.url}" driverClassName="${db_origem.driver}" />
+	</db:config>
+	<db:config name="Destino_Database_Config" doc:name="Database Config" doc:id="d598a49e-bab9-4011-8c2e-6c4c7a8db100" >
+		<db:generic-connection url="${db_destino.url}" driverClassName="${db_destino.driver}" />
+	</db:config>
 </mule>

@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd"></mule>
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<flow name="main" doc:id="f9e0f3da-b102-4eeb-a334-99778c00de18" >
+		<scheduler doc:name="Scheduler" doc:id="0f51e316-12de-4281-8c8a-20d3cb8059d9" >
+			<scheduling-strategy >
+				<cron expression="${scheduler.cron.expression}" timeZone="${scheduler.cron.time_zone}" />
+			</scheduling-strategy>
+		</scheduler>
+		<logger level="INFO" doc:name="init_integration" doc:id="d14b209a-20ed-425e-a8e8-37a9cfd9d2c6" message='#["init integration -&gt; " ++ app.name]'/>
+		<logger level="INFO" doc:name="end_integration" doc:id="0920a53a-a6f6-42df-9716-0f1f3df0df89" message='#["init integration -&gt; " ++ app.name]'/>
+	</flow>
+</mule>

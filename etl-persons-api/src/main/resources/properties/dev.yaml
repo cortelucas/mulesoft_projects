@@ -1,0 +1,12 @@
+scheduler:
+  cron:
+    expression: "* * * 8 * ? *"
+    time_zone: "America/Sao_Paulo"
+
+db_origem:
+  url: "jdbc:sqlite:C:/Users/lcorte/AnypointStudio/projects/etl-persons-api/src/main/resources/db/origem.db"
+  driver: "org.sqlite.JDBC"
+ 
+db_destino:
+  url: "jdbc:sqlite:C:/Users/lcorte/AnypointStudio/projects/etl-persons-api/src/main/resources/db/destino.db"
+  driver: "org.sqlite.JDBC"
